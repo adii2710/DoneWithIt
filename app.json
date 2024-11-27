@@ -16,6 +16,7 @@
       "supportsTablet": true
     },
     "android": {
+      "useCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -23,6 +24,10 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "API_BASE_URL": "http://192.168.29.250:5000"
     }
+
   }
 }
