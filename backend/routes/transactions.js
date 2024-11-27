@@ -65,7 +65,7 @@ router.post("/", async (req, res) => {
       Financial_Goals_Met,
     });
 
-    // await newTransaction.save();
+    await newTransaction.save();
     res.json(newTransaction);
   } catch (error) {
     console.error("Error adding transaction:", error);
