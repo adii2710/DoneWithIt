@@ -27,11 +27,10 @@ npm start
 This will launch the Expo development server.
 
 # **Database Setup**
-
-Install MongoDB: Ensure MongoDB is installed and running on your system.
-Configure .env Files:
-If you're testing on a physical device, find your local IP address.
-Update the .env files in the main project and backend directory with your IP address.
+1. Install MongoDB on your local machine or use a cloud database like MongoDB Atlas.
+2. Create a `.env` file in the root directory and add the following
+    If you're testing on a physical device, find your local IP address.
+    Update the .env files in the main project and backend directory with your IP address.
 
 # **Testing on a Physical Device**
 Make sure the Expo Go app is installed on your device.
