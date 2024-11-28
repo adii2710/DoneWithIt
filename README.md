@@ -1,7 +1,4 @@
-
-Here's a well-styled and formatted README file:
-
-#**Family Finance App**
+# **Family Finance App**
 Welcome to the Family Finance App — a React Native application developed using the Expo client. This app helps manage family finances effectively. Follow the steps below to set up and run the project on your system.
 
 #**Project Setup**
