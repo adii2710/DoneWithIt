@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
 router.get("/f-details/:familyId", async (req, res) => {
   try {
     const { familyId } = req.params;
-    console.log(`Fetching family details for Family_ID: ${familyId}`);
+    // console.log(`Fetching family details for Family_ID: ${familyId}`);
 
     const members = await Transaction.findOne(
       { Family_ID: familyId },
@@ -53,6 +53,7 @@ router.get("/family-ids", async (req, res) => {
 });
 
 router.get("/member-ids/:familyId", async (req, res) => {
+  const { familyId } = req.params;
   console.log(`Fetching Member_IDs for Family_ID: ${familyId}`);
 
   // Validate Family_ID

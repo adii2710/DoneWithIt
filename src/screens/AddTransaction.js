@@ -124,6 +124,7 @@ export default function AddTransaction({ navigation }) {
     } else {
       setAvailableMembers([]);
     }
+    console.log("Rendering with transactionData:", transactionData);
   };
 
   const handleMemberSelection = (memberId) => {

@@ -25,6 +25,20 @@ export default function Dashboard({navigation}) {
       console.error(error);
     }
   };
+
+  const fetchMembers = async (familyId) => {
+    if (!familyId) {
+      console.error("Family ID is undefined!");
+      return;
+    }
+    try {
+      const response = await axios.get(`http://${IP_API_URL}:5000/api/transactions/f-details/${familyId}`);
+
+    } catch (error) {
+      console.error("Error fetching member IDs:", error);
+    }
+    
+  };
   
 
   const fetchFamilyData = async (familyID) => {
