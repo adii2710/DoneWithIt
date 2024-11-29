@@ -7,6 +7,7 @@ router.get("/", async (req, res) => {
     const { Family_ID } = req.query;
     const familyTransactions = await Transaction.find({ Family_ID });
     // console.log(familyTransactions)
+    // console.log(familyTransactions)
     res.json(familyTransactions);
   } catch (error) {
     res.status(500).json({ error: "Error fetching family transactions" });
@@ -16,7 +17,7 @@ router.get("/", async (req, res) => {
 router.get("/f-details/:familyId", async (req, res) => {
   try {
     const { familyId } = req.params;
-    console.log(`Fetching family details for Family_ID: ${familyId}`);
+    // console.log(`Fetching family details for Family_ID: ${familyId}`);
 
     const members = await Transaction.findOne(
       { Family_ID: familyId },
@@ -102,6 +103,9 @@ router.post("/", async (req, res) => {
     if (!Family_ID || !Member_ID || !Transaction_Date || !Category || !Amount) {
       return res.status(400).json({ error: "Missing required fields" });
     }
+    if (!Family_ID || !Member_ID || !Transaction_Date || !Category || !Amount) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
     const newTransaction = new Transaction({
       Family_ID,
       Member_ID,
@@ -120,6 +124,7 @@ router.post("/", async (req, res) => {
     await newTransaction.save();
     res.json(newTransaction);
   } catch (error) {
+    console.error("Error adding transaction:", error.message);
     console.error("Error adding transaction:", error.message);
     res.status(400).json({ error: "Error adding transaction" });
   }
