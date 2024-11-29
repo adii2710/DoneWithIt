@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text,Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Button, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { IP_API_URL } from '@env';
@@ -7,55 +7,72 @@ import { IP_API_URL } from '@env';
 export default function Dashboard({navigation}) {
   const [availableFamilies, setAvailableFamilies] = useState([]);
   const [selectedFamily, setSelectedFamily] = useState('');
-  const [familyData, setFamilyData] = useState([]);
   const [memberContributions, setMemberContributions] = useState({});
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    // Fetch all available families for the dropdown
-    axios.get(`http://${IP_API_URL}:5000/api/transactions/family-ids`)
-      .then((response) => {
-        setAvailableFamilies(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching families:', error.response ? error.response.data : error.message);
-      });
+    fetchFamilies();
+    // fetchMembers();
   }, []);
+  
 
-  const fetchFamilyData = (familyID) => {
-    // Fetch data for the selected family
-    axios.get(`http://${IP_API_URL}:5000/api/transactions?Family_ID=${familyID}`)
-      .then((response) => {
-        const data = response.data;
-        setFamilyData(data);
-        // const apiUrl = process.env.IP_API_URL
-        // console.log(apiUrl)
-        console.log(IP_API_URL)
-
-        // Analyze member contributions
-        const contributions = data.reduce((acc, curr) => {
-          acc[curr.Member_ID] = (acc[curr.Member_ID] || 0) + curr.Amount;
-          return acc;
-        }, {});
-
-        setMemberContributions(contributions);
-        // setSavingsInsights(insights);
-      })
-      .catch((error) => {
-        console.error('Error fetching family data:', error.response ? error.response.data : error.message);
-        // Reset data on error
-        setMemberContributions({});
-      });
+  const fetchFamilies = async () => {
+    try {
+      const response = await axios.get(`http://${IP_API_URL}:5000/api/transactions/family-ids`);
+      setAvailableFamilies(response.data);
+    } catch (error) {
+      Alert.alert('Error', 'Could not fetch families');
+      console.error(error);
+    }
   };
+  
+
+  const fetchFamilyData = async (familyID) => {
+    try {
+      const response = await axios.get(`http://${IP_API_URL}:5000/api/transactions?Family_ID=${familyID}`);
+      const contributions = response.data.reduce((acc, curr) => {
+        acc[curr.Member_ID] = (acc[curr.Member_ID] || 0) + curr.Amount;
+        return acc;
+      }, {});
+      setMemberContributions(contributions);
+    } catch (error) {
+      Alert.alert('Error', 'Could not fetch family data');
+      setMemberContributions({});
+    }
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    Promise.all([
+      fetchFamilies(),
+      selectedFamily ? [fetchFamilyData(selectedFamily)] : Promise.resolve()
+    ]).finally(() => {
+      setRefreshing(false);
+    });
+  }, [selectedFamily]);
 
   const handleFamilySelect = (familyID) => {
     setSelectedFamily(familyID);
     if (familyID) fetchFamilyData(familyID);
+    if (familyID) fetchMembers(familyID);
   };
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Family Selection Dropdown */}
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={['#4A90E2', '#1E6FEB']}
+          tintColor="#1E6FEB"
+        />
+      }
+      contentContainerStyle={styles.scrollViewContent}
+      keyboardShouldPersistTaps="handled"
+    >
       <Button title="Add Transaction" onPress={() => navigation.navigate('AddTransaction')} />
+      
       <Text style={styles.header}>Select Family:</Text>
       <Picker
         selectedValue={selectedFamily}
@@ -68,12 +85,10 @@ export default function Dashboard({navigation}) {
         ))}
       </Picker>
 
-      {/* Analysis Section */}
       {selectedFamily && (
         <View>
           <Text style={styles.sectionHeader}>Analysis for Family: {selectedFamily}</Text>
 
-          {/* Member Contributions */}
           <View style={styles.section}>
             <Text style={styles.subHeader}>Member Contributions</Text>
             {Object.entries(memberContributions).map(([member, total]) => (
@@ -90,8 +105,11 @@ export default function Dashboard({navigation}) {
 
 const styles = StyleSheet.create({
   container: { 
-    padding: 20,
     flex: 1 
+  },
+  scrollViewContent: {
+    padding: 20,
+    paddingBottom: 100
   },
   header: { 
     fontSize: 20, 
@@ -118,16 +136,5 @@ const styles = StyleSheet.create({
   item: { 
     padding: 5, 
     fontSize: 14 
-  },
-  detailItem: {
-    padding: 3,
-    fontSize: 12,
-    color: '#666'
-  },
-  insightContainer: {
-    marginBottom: 10,
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5
   }
 });
