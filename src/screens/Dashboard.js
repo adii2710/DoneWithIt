@@ -26,31 +26,6 @@ export default function Dashboard({navigation}) {
     }
   };
   
-
-  const fetchFamilyData = async (familyID) => {
-    try {
-      const response = await axios.get(`http://${IP_API_URL}:5000/api/transactions?Family_ID=${familyID}`);
-      const contributions = response.data.reduce((acc, curr) => {
-        acc[curr.Member_ID] = (acc[curr.Member_ID] || 0) + curr.Amount;
-        return acc;
-      }, {});
-      setMemberContributions(contributions);
-    } catch (error) {
-      Alert.alert('Error', 'Could not fetch family data');
-      setMemberContributions({});
-    }
-  };
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    Promise.all([
-      fetchFamilies(),
-      selectedFamily ? [fetchFamilyData(selectedFamily)] : Promise.resolve()
-    ]).finally(() => {
-      setRefreshing(false);
-    });
-  }, [selectedFamily]);
-
   const fetchMembers = async (familyId) => {
     if (!familyId) {
       console.error("Family ID is undefined!");
@@ -58,13 +33,12 @@ export default function Dashboard({navigation}) {
     }
     try {
       const response = await axios.get(`http://${IP_API_URL}:5000/api/transactions/f-details/${familyId}`);
-
     } catch (error) {
       console.error("Error fetching member IDs:", error);
     }
+    // console.log(transactionData)
     
   };
-  
 
   const fetchFamilyData = async (familyID) => {
     try {

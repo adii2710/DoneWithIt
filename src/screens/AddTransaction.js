@@ -1,34 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { IP_API_URL } from '@env';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
 
 export default function AddTransaction({ navigation }) {
-  const [availableFamilies, setAvailableFamilies] = useState([]);
-  const [availableMembers, setAvailableMembers] = useState([]);
-  const [isNewFamily, setIsNewFamily] = useState(false);
-  const [isNewMember, setIsNewMember] = useState(false);
-  const [transactionData, setTransactionData] = useState({
-    Family_ID: '',
-    Member_ID: '',
-    Transaction_Date: new Date(),
-    Category: '',
-    Amount: '',
-    Income: '',
-    Savings: '',
-    Monthly_Expenses: '',
-    Loan_Payments: '',
-    Credit_Card_Spending: '',
-    Dependents: '',
-    Financial_Goals_Met: '',
-  });
-
   const [availableFamilies, setAvailableFamilies] = useState([]);
   const [availableMembers, setAvailableMembers] = useState([]);
   const [isNewFamily, setIsNewFamily] = useState(false);
@@ -147,7 +124,6 @@ export default function AddTransaction({ navigation }) {
     } else {
       setAvailableMembers([]);
     }
-    console.log("Rendering with transactionData:", transactionData);
   };
 
   const handleMemberSelection = (memberId) => {
@@ -171,25 +147,9 @@ export default function AddTransaction({ navigation }) {
     
     if (emptyFields.length > 0) {
       Alert.alert('Error', `Please fill in: ${emptyFields.join(', ')}`);
-    const numericFields = ['Amount', 'Income', 'Savings', 'Monthly_Expenses', 'Loan_Payments', 'Credit_Card_Spending', 'Dependents', 'Financial_Goals_Met'];
-    
-    // Validation
-    const emptyFields = Object.keys(transactionData).filter(key => 
-      !transactionData[key] && key !== 'Transaction_Date'
-    );
-    
-    if (emptyFields.length > 0) {
-      Alert.alert('Error', `Please fill in: ${emptyFields.join(', ')}`);
       return;
     }
 
-    // Numeric validation
-    const invalidNumericFields = numericFields.filter(field => 
-      isNaN(parseFloat(transactionData[field]))
-    );
-    
-    if (invalidNumericFields.length > 0) {
-      Alert.alert('Error', `Invalid numeric values for: ${invalidNumericFields.join(', ')}`);
     // Numeric validation
     const invalidNumericFields = numericFields.filter(field => 
       isNaN(parseFloat(transactionData[field]))
@@ -213,21 +173,9 @@ export default function AddTransaction({ navigation }) {
       Credit_Card_Spending: parseFloat(transactionData.Credit_Card_Spending),
       Dependents: parseInt(transactionData.Dependents),
       Financial_Goals_Met: parseInt(transactionData.Financial_Goals_Met),
-    const payload = {
-      ...transactionData,
-      Transaction_Date: transactionData.Transaction_Date.toISOString().split('T')[0],
-      Amount: parseFloat(transactionData.Amount),
-      Income: parseFloat(transactionData.Income),
-      Savings: parseFloat(transactionData.Savings),
-      Monthly_Expenses: parseFloat(transactionData.Monthly_Expenses),
-      Loan_Payments: parseFloat(transactionData.Loan_Payments),
-      Credit_Card_Spending: parseFloat(transactionData.Credit_Card_Spending),
-      Dependents: parseInt(transactionData.Dependents),
-      Financial_Goals_Met: parseInt(transactionData.Financial_Goals_Met),
     };
 
     axios
-      .post(`http://${IP_API_URL}:5000/api/transactions`, payload)
       .post(`http://${IP_API_URL}:5000/api/transactions`, payload)
       .then(() => {
         Alert.alert('Success', 'Transaction added successfully');
@@ -242,99 +190,6 @@ export default function AddTransaction({ navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Add New Transaction</Text>
-      
-      {/* Family ID Dropdown */}
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Select Family</Text>
-        <Picker
-          selectedValue={transactionData.Family_ID}
-          onValueChange={handleFamilySelection}
-        >
-          <Picker.Item label="Select Family" value="" />
-          <Picker.Item label="New Family" value="new" />
-          {availableFamilies.map(familyId => (
-            <Picker.Item 
-              key={familyId} 
-              label={familyId} 
-              value={familyId} 
-            />
-          ))}
-        </Picker>
-      </View>
-
-      {/* New Family Button */}
-      {isNewFamily && (
-        <Button 
-          title="Create New Family" 
-          onPress={generateNewFamilyId} 
-        />
-      )}
-
-      {/* Member ID Dropdown (only show when a family is selected) */}
-      {transactionData.Family_ID && !isNewFamily && (
-        <View style={styles.pickerContainer}>
-          <Text style={styles.label}>Select Member</Text>
-          <Picker
-            selectedValue={transactionData.Member_ID}
-            onValueChange={handleMemberSelection}
-          >
-            <Picker.Item label="Select Member" value="" />
-            <Picker.Item label="New Member" value="new" />
-            {availableMembers.map(memberId => (
-              <Picker.Item 
-                key={memberId} 
-                label={memberId} 
-                value={memberId} 
-              />
-            ))}
-          </Picker>
-        </View>
-      )}
-
-      {/* New Member Button */}
-      {isNewMember && (
-        <Button 
-          title="Create New Member" 
-          onPress={generateNewMemberId} 
-        />
-      )}
-      
-      {/* Date Picker */}
-      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
-        <Text>{transactionData.Transaction_Date.toLocaleDateString()}</Text>
-      </TouchableOpacity>
-      
-      {showDatePicker && (
-        <DateTimePicker
-          value={transactionData.Transaction_Date}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
-        />
-      )}
-      
-      {/* Rest of the form fields */}
-      <TextInput 
-        style={styles.input} 
-        placeholder="Category" 
-        value={transactionData.Category} 
-        onChangeText={(value) => updateField('Category', value)} 
-      />
-      
-      {['Amount', 'Income', 'Savings', 'Monthly_Expenses', 
-        'Loan_Payments', 'Credit_Card_Spending', 
-        'Dependents', 'Financial_Goals_Met'].map(field => (
-          <TextInput
-            key={field}
-            style={styles.input}
-            placeholder={field.replace(/_/g, ' ')}
-            keyboardType="numeric"
-            value = {transactionData[field] ? String(transactionData[field]) : ''}
-            onChangeText={(value) => updateField(field, value)}
-          />
-      ))}
-      
       <Text style={styles.header}>Add New Transaction</Text>
       
       {/* Family ID Dropdown */}
@@ -448,16 +303,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center'
   },
-  container: { 
-    padding: 20,
-    paddingBottom: 100 
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center'
-  },
   input: {
     height: 50,
     borderColor: '#1E6FEB',
@@ -477,33 +322,7 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     borderColor: '#1E6FEB',
-    height: 50,
-    borderColor: '#1E6FEB',
     borderWidth: 1,
-    marginBottom: 15,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-  },
-  dateInput: {
-    height: 50,
-    borderColor: '#1E6FEB',
-    borderWidth: 1,
-    marginBottom: 15,
-    justifyContent: 'center',
-    paddingHorizontal: 15,
-    borderRadius: 8,
-  },
-  pickerContainer: {
-    borderColor: '#1E6FEB',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  label: {
-    marginLeft: 15,
-    marginTop: 10,
-    fontSize: 16,
-    color: '#1E6FEB',
     borderRadius: 8,
     marginBottom: 15,
   },
