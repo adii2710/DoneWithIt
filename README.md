@@ -31,6 +31,8 @@ This will launch the Expo development server.
 2. Create a `.env` file in the root directory and add the following
     If you're testing on a physical device, find your local IP address.
     Update the .env files in the main project and backend directory with your IP address.
+3. Navigate to DoneWithIt/backend/DB_setup/seed.js
+   In terminal/ bash run 'node seed.js'
 
 # **Testing on a Physical Device**
 Make sure the Expo Go app is installed on your device.
